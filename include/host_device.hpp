@@ -11,7 +11,7 @@ private:
     std::string description;
 public:
     HostDevice(/* args */) = default;
-    HostDevice::HostDevice(PWCHAR _adapterName, PWCHAR _description, std::string _friendlyName);
+    HostDevice(PWCHAR _adapterName, PWCHAR _description, std::string _friendlyName);
     ~HostDevice() = default;
 
     std::string getAdapterName()  const;
