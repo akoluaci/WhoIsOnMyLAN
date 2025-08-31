@@ -27,17 +27,3 @@ int send_arp_request(const char* target_ip_address, unsigned char* mac_address, 
     return 1;
 
 }
-
-int get_mac_address(const char* target_ip_address, const char* source_ip_address, char* found_mac)
-{
-    IPAddr dest_ip = inet_addr(target_ip_address);
-    char* mac_address[2];
-    long mac_address_len = 6;
-
-    memset(mac_address, 0, mac_address_len);
-    long result = SendARP(dest_ip, 0, (void*)mac_address, &mac_address_len);
-    if (NO_ERROR != result || mac_address_len != 6)
-        return -1;
-    memcpy(found_mac, mac_address, mac_address_len);
-    return 0;
-}
