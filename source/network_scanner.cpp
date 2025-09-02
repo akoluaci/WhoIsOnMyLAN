@@ -7,9 +7,22 @@
 #include <stdint.h>
 #include "icmp.h"
 #include "arp.h"
-
+#include <map>
+#include "utils.h"
 
 #define MAX_SIZE 255
+std::map<int, std::string> port_services;
+void initializePortServices() {
+    port_services[21] = "FTP";
+    port_services[22] = "SSH";
+    port_services[23] = "Telnet";
+    port_services[25] = "SMTP";
+    port_services[53] = "DNS";
+    port_services[80] = "HTTP";
+    port_services[135] = "Microsoft EPMAP (End Point Mapper)";
+    port_services[443] = "HTTPS";
+    // Add more ports as needed
+}
 
 
 NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
@@ -87,30 +100,37 @@ void NetworkScanner::scan() {
 
     uint32_t subnetInv = ~subnetMask;
     uint32_t broadcast = networkAddress | subnetInv;
-    // std::cout << "Broadcast Address: " << broadcast << "\n";
-
-    // std::cout << "Ip Start: " << networkAddress + 1 << " Ip End: " << broadcast - 1 << "\n";
-
-    // char buffer[INET_ADDRSTRLEN] = {0};
-    uint32_t startIp = networkAddress + 1;
-    in_addr start_addr;
-    start_addr.s_addr = htonl(startIp);
-    char startIpStr[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &start_addr, startIpStr, INET_ADDRSTRLEN);
-    std::cout << "Starting IP Address: " << startIpStr << "\n";
-    // std::string macAddressStr = "";
+    
+    
+    // uint32_t startIp = networkAddress + 1;
+    // in_addr start_addr;
+    // start_addr.s_addr = htonl(startIp);
+    // char startIpStr[INET_ADDRSTRLEN];
+    // inet_ntop(AF_INET, &start_addr, startIpStr, INET_ADDRSTRLEN);
+    initializePortServices();
     unsigned char macAddress[6] = {0};
     unsigned long macAddressLen = 6;
-    if (!send_ping("192.168.1.17")) {
-        if (!send_arp_request("192.168.1.17", macAddress, &macAddressLen)) {
-            std::cout << "MAC Address: ";
-            for (size_t i = 0; i < macAddressLen; i++)
+    if (!send_ping(hostIpv4Address)) {
+        if (!send_arp_request(hostIpv4Address, macAddress, &macAddressLen)) {
+            for (size_t i = 0; i < 6; i++)
             {
-                std::cout << std::hex << (int)macAddress[i];
-                if (i != macAddressLen - 1)
+                std::cout << std::uppercase << std::hex << std::setw(2) << static_cast<int>(macAddress[i]);
+                if (i != 5)
                     std::cout << ":";
             }
-            std::cout << "\n";
+        } else {
+            std::cout << "[ERROR]MAC Address cannot be resolved!\n";
+            return; 
         }
+        for (auto it : port_services)
+        {
+            if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, hostIpv4Address, it.first)) {
+                std::cout << it.second << "[Port:" << it.first << "] is used\n";
+                break; 
+            }
+        }
+    } else {
+        std::cout << "[ERROR]Ping request isnt replied.\n";
     }
+    
 }
