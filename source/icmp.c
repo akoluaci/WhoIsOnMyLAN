@@ -29,7 +29,7 @@ uint16_t calculate_checksum(void *data, size_t len)
     return checksum;
 }
 
-int send_ping(const char* target_ip_address)
+int send_ping(unsigned long target_ip_address)
 {
     struct sockaddr_in recv_addr   = {0};
     struct sockaddr_in sender_addr = {0};
@@ -46,11 +46,12 @@ int send_ping(const char* target_ip_address)
     // TODO
     // Port must be a parameter value, not static.
     recv_addr.sin_port = htons(0);
-    result = inet_pton(AF_INET, target_ip_address, (void*)&recv_addr.sin_addr);
-    if (result <= 0) {
-        puts("[ERROR]IP Address cannot be resolved!");
-        printf("Error Code:%d\n", WSAGetLastError());
-    }
+    recv_addr.sin_addr.S_un.S_addr = target_ip_address;
+    // result = inet_pton(AF_INET, target_ip_address, (void*)&recv_addr.sin_addr);
+    // if (result <= 0) {
+    //     puts("[ERROR]IP Address cannot be resolved!");
+    //     printf("Error Code:%d\n", WSAGetLastError());
+    // }
 
     local_addr.sin_family = AF_INET;
     local_addr.sin_port = htons(0);
@@ -99,3 +100,4 @@ int send_ping(const char* target_ip_address)
         return 0;
     return 1;
 }
+

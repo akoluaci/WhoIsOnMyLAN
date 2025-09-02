@@ -22,7 +22,7 @@ struct ArpHeader
 };
 #pragma pack(pop)
 
-int send_arp_request(const char* target_ip_address, unsigned char* mac_address, unsigned long* mac_address_len);
+int send_arp_request(unsigned long target_ip_address, unsigned char* mac_address, unsigned long* mac_address_len);
 
 #ifdef __cplusplus
 }

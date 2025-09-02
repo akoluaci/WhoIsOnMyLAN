@@ -19,7 +19,8 @@ struct IcmpHeader
 #pragma pack(pop)
 
 uint16_t calculate_checksum(void *data, size_t len);
-int send_ping(const char* target_ip_address);
+// int send_ping(const char* target_ip_address);
+int send_ping(unsigned long target_ip_address);
 
 #ifdef __cplusplus
 }
