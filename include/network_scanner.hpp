@@ -12,6 +12,7 @@ private:
     std::vector<Device> devices;
     unsigned long subnetMask;
     unsigned long hostIpv4Address;
+    void processIpV4(unsigned long ipV4Address, unsigned char* macAddress, unsigned long macAddressLen);
 public:
     NetworkScanner() = default;
     NetworkScanner(HostDevice& hostDevice);

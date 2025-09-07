@@ -9,8 +9,73 @@
 #include "arp.h"
 #include <map>
 #include "utils.h"
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <functional>
+#include <queue>
 
 #define MAX_SIZE 255
+
+class MyThreadPool {
+public:
+    MyThreadPool(int threadNum = std::thread::hardware_concurrency()) {
+        for (size_t i = 0; i < threadNum; ++i)
+        {
+            stop = false;
+            threads.emplace_back([this, i] {
+                while (true)
+                {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(mtx);
+                        conditionalVar.wait(lock, [this] {
+                            return (!tasks.empty() || stop);
+                        });
+                        if (stop && tasks.empty())
+                            return;
+                        task = std::move(tasks.front());
+                        tasks.pop();
+                    }
+                    // cout_mtx.lock();
+                    // std::cout << "Thread [" << std::this_thread::get_id() << "] is executing task " << i << ".\n";
+                    // cout_mtx.unlock();
+                    // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                    task();
+                }
+            });
+        }   
+    }
+
+    void enqueue(std::function<void()> task)
+    {
+        std::unique_lock<std::mutex> lock(mtx);
+        tasks.push(task);
+        conditionalVar.notify_one();
+    }
+
+    ~MyThreadPool() {
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            stop = true;
+        }
+        conditionalVar.notify_all();
+        for (auto &th : threads)
+        {
+            if (th.joinable())
+                th.join();
+        }
+        
+    }
+private:
+    std::vector<std::thread> threads;
+    std::queue<std::function<void()>> tasks;
+    std::mutex mtx;
+    std::condition_variable conditionalVar;
+    bool stop = false;
+};
+
+
 std::map<int, std::string> port_services;
 void initializePortServices() {
     port_services[21] = "FTP";
@@ -90,28 +155,9 @@ NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
     }
 }
 
-void NetworkScanner::scan() {
-    // std::cout << "\nscan is starting...\n";
-    
-    uint32_t ipv4Address = ntohl(hostIpv4Address);
-    uint32_t subnetMask = this->subnetMask;
-    uint32_t networkAddress = subnetMask & ipv4Address;
-    // std::cout << "Network Address: " << networkAddress << "\n";
-
-    uint32_t subnetInv = ~subnetMask;
-    uint32_t broadcast = networkAddress | subnetInv;
-    
-    
-    // uint32_t startIp = networkAddress + 1;
-    // in_addr start_addr;
-    // start_addr.s_addr = htonl(startIp);
-    // char startIpStr[INET_ADDRSTRLEN];
-    // inet_ntop(AF_INET, &start_addr, startIpStr, INET_ADDRSTRLEN);
-    initializePortServices();
-    unsigned char macAddress[6] = {0};
-    unsigned long macAddressLen = 6;
-    if (!send_ping(hostIpv4Address)) {
-        if (!send_arp_request(hostIpv4Address, macAddress, &macAddressLen)) {
+void NetworkScanner::processIpV4(unsigned long ipV4Address, unsigned char* macAddress, unsigned long macAddressLen) {
+    if (!send_ping(ipV4Address)) {
+        if (!send_arp_request(ipV4Address, macAddress, &macAddressLen)) {
             for (size_t i = 0; i < 6; i++)
             {
                 std::cout << std::uppercase << std::hex << std::setw(2) << static_cast<int>(macAddress[i]);
@@ -124,13 +170,45 @@ void NetworkScanner::scan() {
         }
         for (auto it : port_services)
         {
-            if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, hostIpv4Address, it.first)) {
+            if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, ipV4Address, it.first)) {
                 std::cout << it.second << "[Port:" << it.first << "] is used\n";
                 break; 
             }
         }
     } else {
         std::cout << "[ERROR]Ping request isnt replied.\n";
+    }
+}
+
+void NetworkScanner::scan() {
+    // std::cout << "\nscan is starting...\n";
+    
+    uint32_t ipv4Address = ntohl(hostIpv4Address);
+    uint32_t subnetMask = this->subnetMask;
+    uint32_t networkAddress = subnetMask & ipv4Address;
+    // std::cout << "Network Address: " << networkAddress << "\n";
+
+    uint32_t subnetInv = ~subnetMask;
+    uint32_t broadcast = networkAddress | subnetInv;
+    
+    
+    uint32_t startIp = networkAddress + 1;
+    // in_addr start_addr;
+    // start_addr.s_addr = htonl(startIp);
+    // char startIpStr[INET_ADDRSTRLEN];
+    // inet_ntop(AF_INET, &start_addr, startIpStr, INET_ADDRSTRLEN);
+    initializePortServices();
+    
+    MyThreadPool myThreadPool(2);
+    for (uint32_t i = startIp; i < startIp + 5; i++)
+    {
+        myThreadPool.enqueue([this, i] {
+            std::cout << "ThreadId: " << std::this_thread::get_id() << " is working.\n";
+            unsigned char macAddress[6] = {0};
+            unsigned long macAddressLen = 6;
+            processIpV4(i, macAddress, macAddressLen);
+            std::cout << "ThreadId: " << std::this_thread::get_id() << " finished its job.\n";
+        });
     }
     
 }
