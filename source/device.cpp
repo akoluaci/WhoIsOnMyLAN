@@ -1,7 +1,6 @@
 #include "device.hpp"
 #include <algorithm>
 #include <iomanip>
-#include <ws2tcpip.h>
 
 
 Device::Device(unsigned long _ipv4Address, unsigned char* _macAddress, unsigned long _macAddressLength, int port) {

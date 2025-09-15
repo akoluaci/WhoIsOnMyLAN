@@ -1,7 +1,7 @@
 #ifndef ICMP_H
 #define ICMP_H
 
-#include <stdint.h>
+#include "ip.h"
 
 #ifdef __cplusplus
 extern "C" {

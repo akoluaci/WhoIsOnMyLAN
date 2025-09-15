@@ -2,7 +2,8 @@
 #define HOST_DEVICE_HPP
 
 #include "device.hpp"
-#include <ws2tcpip.h>
+
+
 class HostDevice : public Device
 {
 private:
