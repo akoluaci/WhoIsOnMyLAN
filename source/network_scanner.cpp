@@ -96,7 +96,9 @@ void initializePortServices() {
 }
 
 
-NetworkScanner::NetworkScanner() {
+
+void NetworkScanner::getHostDevice(/*std::function<void(const std::string& ip, const std::string& mac)> onDeviceFoundCallback*/) {
+    // std::cout << "get host device is called\n";
     unsigned long flags              = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER; 
     unsigned long bufferSize         = 15000;
     unsigned long computerNameLen    = MAX_SIZE;
@@ -105,7 +107,7 @@ NetworkScanner::NetworkScanner() {
     PIP_ADAPTER_ADDRESSES pAddresses = (PIP_ADAPTER_ADDRESSES)malloc(sizeof(PIP_ADAPTER_ADDRESSES) * bufferSize);
     unsigned long result             = 0;
     auto hostDevice = std::make_unique<HostDevice>();
-
+    
     if (NULL == pAddresses) {
         std::cout << "[ERROR]Not enought memory space for allocation!\n";
         exit(EXIT_FAILURE);
@@ -120,7 +122,7 @@ NetworkScanner::NetworkScanner() {
     }
 
     result = GetAdaptersAddresses(AF_INET, flags, 0, pAddresses, &bufferSize);
-
+    // std::cout << "result: " << (result == NO_ERROR) << "\n";
     if (NO_ERROR == result) {
         while (pAddresses->OperStatus != IfOperStatusUp || pAddresses->IfType == IF_TYPE_SOFTWARE_LOOPBACK) {
             pAddresses = pAddresses -> Next;
@@ -139,9 +141,10 @@ NetworkScanner::NetworkScanner() {
                 }
                 pUnicast = pUnicast -> Next;
             }
-            if (pAddresses->PhysicalAddressLength != 0)
+            if (pAddresses->PhysicalAddressLength != 0) {
                 hostDevice->setMacAddress(pAddresses->PhysicalAddress);
-            
+                hostDevice->setVendor();
+            }
             hostDevice->setAdapterName(pAddresses->FriendlyName);
             hostDevice->setDescription(pAddresses->Description);
         }
@@ -156,27 +159,55 @@ NetworkScanner::NetworkScanner() {
                         std::cout << "Error Message: " << std::string(lpMsgBuf) << "\n";
                         LocalFree(lpMsgBuf);
                         if (pAddresses)
-                        free(pAddresses);
+                            free(pAddresses);
                         exit(1);
                     }
     }
+    // if (pAddresses)
+    //     free(pAddresses);
+    // onDeviceFoundCallback(devices.at(0)->getIpv4Address(), devices.at(0)->getMacAddress());
 }
 
 
 void NetworkScanner::processIpV4(unsigned long ipV4Address, unsigned char* macAddress, unsigned long macAddressLen) {
     std::lock_guard<std::mutex> lock(mtx);
+    if (stopRequest) {
+        // std::cout << "stop request @1\n";
+        devices.clear();
+        return;
+    }
     if (!send_ping(ipV4Address)) {
+        if (stopRequest) {
+            // std::cout << "stop request @1\n";
+            devices.clear();
+            return;
+        }
         if (!send_arp_request(ipV4Address, macAddress, &macAddressLen)) {
             auto networkDevicePtr = std::make_unique<NetworkDevice>(ipV4Address, macAddress, macAddressLen);
             devices.push_back(std::move(networkDevicePtr));
             for (auto it : port_services)
             {
+                if (stopRequest) {
+                    // std::cout << "stop request @1\n";
+                    devices.clear();
+                    return;
+                }
                 if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, ipV4Address, it.first)) {
                     devices.back()->addPort(it.first);
                     // std::cout << it.second << "\t\t[Port:" << it.first << "] is used\n";
                 }
+                if (stopRequest) {
+                   // std::cout << "stop request @1\n";
+                    devices.clear();
+                    return;
+                }
             }   
         } else {
+            if (stopRequest) {
+                // std::cout << "stop request @1\n";
+                devices.clear();
+                return;
+            }
             // std::cout << "[ERROR]MAC Address cannot be resolved!\n";
             return; 
         } /*else {
@@ -217,7 +248,6 @@ void NetworkScanner::scan() {
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
         });
     }
-    
 }
 
 Device& NetworkScanner::getDevice(size_t index) const {
@@ -231,4 +261,23 @@ int NetworkScanner::getDeviceCount() const {
     return devices.size();
 }
 
-//git log --oneline --graph
+const std::vector<std::unique_ptr<Device>>& NetworkScanner::getDevices() const {
+    return std::move(devices);
+}
+
+std::vector<const Device*> NetworkScanner::getDevicePointers() const {
+    std::vector<const Device*> devicePtrVector;
+    for (const auto& ptr : devices) {
+        devicePtrVector.push_back(ptr.get());
+    }
+    return devicePtrVector;
+}
+
+
+std::atomic<bool> NetworkScanner::getStopRequest() const {
+    return stopRequest.load();
+}
+
+void NetworkScanner::setStopRequest(std::atomic<bool> _stopRequest) {
+    stopRequest.store(_stopRequest);
+}
