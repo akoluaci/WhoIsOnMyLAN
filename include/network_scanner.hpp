@@ -2,23 +2,24 @@
 #define __NETWORK_SCANNER
 
 #include <vector>
-#include "host_device.hpp"
 #include <winsock2.h>
 #include <iphlpapi.h>
+#include <memory>
+#include "device.hpp"
 
 class NetworkScanner
 {
 private:
-    std::vector<Device> devices;
+    std::vector<std::unique_ptr<Device>> devices;
     unsigned long subnetMask;
     unsigned long hostIpv4Address;
 public:
-    NetworkScanner() = default;
-    NetworkScanner(HostDevice& hostDevice);
+    NetworkScanner();
     ~NetworkScanner() = default;
 
     void                scan();
-    std::vector<Device> getDevices() const;
+    Device& getDevice(size_t index) const;
+    int getDeviceCount() const;
 };
 
 

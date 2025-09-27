@@ -10,13 +10,13 @@ private:
     // std::string hostName; // NetBIOS required. implemented later
 public:
     NetworkDevice(/* args */) = default;
-    NetworkDevice(std::string vendor/*, std::string hostName*/);
-    ~NetworkDevice();
+    NetworkDevice(unsigned long ipV4Address, unsigned char* macAddress, unsigned long macAddressLength);
+    ~NetworkDevice() = default;
 
     std::string getVendor() const;
     // std::string getHostName() const;
 
-    void setVendor(std::string vendor);
+    void setVendor(std::string uoiCode);
     // void setHostName(std::string hostName);
 
     void printDeviceInformation() const override;

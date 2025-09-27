@@ -1,7 +1,7 @@
 #include "device.hpp"
 #include <algorithm>
 #include <iomanip>
-
+#include <iostream>
 
 Device::Device(unsigned long _ipv4Address, unsigned char* _macAddress, unsigned long _macAddressLength, int port) {
     setIpv4Address(_ipv4Address);
@@ -31,4 +31,15 @@ void Device::addPort(int port) {
     if (std::find(openPorts.begin(), openPorts.end(), port) == openPorts.end()) {
         openPorts.push_back(port);
     }
+}
+
+std::vector<int> Device::getOpenPorts() const {
+    return openPorts;
+}
+
+std::string Device::getIpv4Address() const {
+    return ipv4Address;
+}
+std::string Device::getMacAddress() const {
+    return macAddress;
 }
