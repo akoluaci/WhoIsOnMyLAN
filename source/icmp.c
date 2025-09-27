@@ -1,9 +1,7 @@
-#include <Ws2tcpip.h>
+#include <ws2tcpip.h>
 #include <stdio.h>
-// #include <winsock2.h>
 #include "utils.h"
 #include "icmp.h"
-#include "ip.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -64,12 +62,13 @@ int send_ping(unsigned long target_ip_address)
         return -1;
     }
 
-    if (bind(socket, (struct sockaddr*)&local_addr, sizeof(local_addr)) == SOCKET_ERROR) {
-        puts("Binding failed!");
-        printf("Error Code:%d\n", WSAGetLastError());
-        WSACleanup();
-        return -1;
-    }
+    // NO NEED BIND FUNCTION HERE SINCE sendto function AFTER socket function calls bind implicitly
+    // if (bind(socket, (struct sockaddr*)&local_addr, sizeof(local_addr)) == SOCKET_ERROR) {
+    //     puts("Binding failed!");
+    //     printf("Error Code:%d\n", WSAGetLastError());
+    //     WSACleanup();
+    //     return -1;
+    // }
 
     icmp.checksum = calculate_checksum((void*)&icmp, sizeof(icmp));
     result = sendto(socket, (char*)&icmp, sizeof(icmp), 0, (SOCKADDR *) &recv_addr, sizeof(recv_addr));

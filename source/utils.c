@@ -1,6 +1,5 @@
 #include "utils.h"
 #include <stdio.h>
-#include <winsock2.h>
 #include <ws2tcpip.h>
 
 
@@ -19,6 +18,8 @@ SOCKET create_socket(int address_family, int type, int protocol)
     }
 
     new_socket = socket(address_family, type, protocol);
+    DWORD timeout = 1000; // 1 second
+    setsockopt(new_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
     return new_socket;
 }
 
@@ -51,15 +52,16 @@ int connection(int address_family, int type, int protocol, unsigned long ipv4_ad
 
     result = connect(new_socket, (SOCKADDR *) & client_service, sizeof (client_service));
     if (SOCKET_ERROR == result) {
-        puts("[ERROR]Socket creation failed!");
-        printf("Error Code: %d\n", WSAGetLastError());
+        // puts("[ERROR]Socket creation failed!");
+        // printf("Error Code: %d\n", WSAGetLastError());
         result = closesocket(new_socket);
-        // if (result == SOCKET_ERROR) {
-        //     puts("[ERROR]Error during closing socket");
-        //     printf("Error Code: %d\n", WSAGetLastError());
-        // }
-        // WSACleanup();
+        if (result == SOCKET_ERROR) {
+            puts("[ERROR]Error during closing socket");
+            printf("Error Code: %d\n", WSAGetLastError());
+        }
+        WSACleanup();
         return -1;
     }
+    WSACleanup();
     return 0;
 }

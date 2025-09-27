@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <ws2tcpip.h>
+
 
 class Device
 {

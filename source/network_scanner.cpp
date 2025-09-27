@@ -1,12 +1,12 @@
 #include "network_scanner.hpp"
-#include <iostream>
+#include "host_device.hpp"
+#include "network_device.hpp"
+#include "arp.h"
+#include "utils.h"
+#include "icmp.h"
 #include <windows.h>
 #include <ws2tcpip.h>
 #include <winbase.h>
-#include <iomanip>
-#include <stdint.h>
-#include "icmp.h"
-#include "arp.h"
 #include <map>
 #include "utils.h"
 #include <thread>
@@ -14,6 +14,8 @@
 #include <condition_variable>
 #include <functional>
 #include <queue>
+#include <iostream>
+#include <iomanip>
 
 #define MAX_SIZE 255
 
@@ -77,20 +79,21 @@ private:
 
 
 std::map<int, std::string> port_services;
+
 void initializePortServices() {
-    port_services[21] = "FTP";
-    port_services[22] = "SSH";
-    port_services[23] = "Telnet";
-    port_services[25] = "SMTP";
-    port_services[53] = "DNS";
-    port_services[80] = "HTTP";
+    port_services[21]  = "FTP";
+    port_services[22]  = "SSH";
+    port_services[23]  = "Telnet";
+    port_services[25]  = "SMTP";
+    port_services[53]  = "DNS";
+    port_services[80]  = "HTTP";
     port_services[135] = "Microsoft EPMAP (End Point Mapper)";
     port_services[443] = "HTTPS";
     // Add more ports as needed
 }
 
 
-NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
+NetworkScanner::NetworkScanner() {
     unsigned long flags              = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER; 
     unsigned long bufferSize         = 15000;
     unsigned long computerNameLen    = MAX_SIZE;
@@ -98,6 +101,7 @@ NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
     char* lpMsgBuf                   = NULL;
     PIP_ADAPTER_ADDRESSES pAddresses = (PIP_ADAPTER_ADDRESSES)malloc(sizeof(PIP_ADAPTER_ADDRESSES) * bufferSize);
     unsigned long result             = 0;
+    auto hostDevice = std::make_unique<HostDevice>();
 
     if (NULL == pAddresses) {
         std::cout << "[ERROR]Not enought memory space for allocation!\n";
@@ -107,9 +111,9 @@ NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
     result = GetComputerNameA(computerName, &computerNameLen);
     if (result == 0) {
         std::cout << "[WARNING]Computer name cannot retrieved!\n";
-        hostDevice.setFriendlyName("");
+        hostDevice->setFriendlyName("");
     } else {
-        hostDevice.setFriendlyName(computerName);
+        hostDevice->setFriendlyName(computerName);
     }
 
     result = GetAdaptersAddresses(AF_INET, flags, 0, pAddresses, &bufferSize);
@@ -125,20 +129,20 @@ NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
             {
                 if (AF_INET == pUnicast->Address.lpSockaddr->sa_family) {
                     struct sockaddr_in *ipSockAddr = (struct sockaddr_in*)pUnicast->Address.lpSockaddr;
-                    hostDevice.setIpv4Address(ipSockAddr->sin_addr.S_un.S_addr);
+                    hostDevice->setIpv4Address(ipSockAddr->sin_addr.S_un.S_addr);
                     hostIpv4Address = ipSockAddr->sin_addr.S_un.S_addr;
                     uint32_t onLinkPrefixLength = pUnicast->OnLinkPrefixLength;
                     subnetMask = ~((1 << (32 - onLinkPrefixLength)) - 1);
-                    break;
                 }
                 pUnicast = pUnicast -> Next;
             }
             if (pAddresses->PhysicalAddressLength != 0)
-                hostDevice.setMacAddress(pAddresses->PhysicalAddress);
+                hostDevice->setMacAddress(pAddresses->PhysicalAddress);
             
-            hostDevice.setAdapterName(pAddresses->FriendlyName);
-            hostDevice.setDescription(pAddresses->Description);
+            hostDevice->setAdapterName(pAddresses->FriendlyName);
+            hostDevice->setDescription(pAddresses->Description);
         }
+        devices.push_back(std::move(hostDevice));
     } else {
         std::cout << "Call to GetAdaptersAddresses failed with error: " << result << "\n";
         if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -154,6 +158,7 @@ NetworkScanner::NetworkScanner(HostDevice& hostDevice) {
                     }
     }
 }
+
 
 void NetworkScanner::processIpV4(unsigned long ipV4Address, unsigned char* macAddress, unsigned long macAddressLen) {
     if (!send_ping(ipV4Address)) {
@@ -173,10 +178,12 @@ void NetworkScanner::processIpV4(unsigned long ipV4Address, unsigned char* macAd
             if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, ipV4Address, it.first)) {
                 std::cout << it.second << "[Port:" << it.first << "] is used\n";
                 break; 
+
             }
-        }
-    } else {
-        std::cout << "[ERROR]Ping request isnt replied.\n";
+            
+        } /*else {
+            std::cout << "[ERROR]Ping request isnt replied.\n";
+        }*/
     }
 }
 
@@ -211,4 +218,15 @@ void NetworkScanner::scan() {
         });
     }
     
+}
+
+Device& NetworkScanner::getDevice(size_t index) const {
+    if (index < devices.size()) {
+        return *devices[index].get();
+    }
+    throw std::out_of_range("Index is out of range!\n");
+}
+
+int NetworkScanner::getDeviceCount() const {
+    return devices.size();
 }
