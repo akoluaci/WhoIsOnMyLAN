@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
     networkScanner.scan();
     
     int deviceCount = networkScanner.getDeviceCount();
-    // std::cout << "Device Count: " << deviceCount << "\n";
+    std::cout << "Device Count: " << deviceCount << "\n";
     
     for (int i = 1; i < deviceCount; ++i) {
         Device& dev1 = networkScanner.getDevice(i);

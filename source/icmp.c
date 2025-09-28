@@ -73,7 +73,7 @@ int send_ping(unsigned long target_ip_address)
     icmp.checksum = calculate_checksum((void*)&icmp, sizeof(icmp));
     result = sendto(socket, (char*)&icmp, sizeof(icmp), 0, (SOCKADDR *) &recv_addr, sizeof(recv_addr));
     if (SOCKET_ERROR == result) {
-        puts("Error while sending icmp request!\n");
+        puts("Error while sending icmp request!");
         printf("Error code:%d\n", WSAGetLastError());
         WSACleanup();
         return -1;

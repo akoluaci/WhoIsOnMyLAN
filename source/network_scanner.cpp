@@ -19,9 +19,12 @@
 
 #define MAX_SIZE 255
 
+std::mutex mtx;
+
 class MyThreadPool {
 public:
     MyThreadPool(int threadNum = std::thread::hardware_concurrency()) {
+        // std::cout << "threadNum: " << threadNum << "\n";
         for (size_t i = 0; i < threadNum; ++i)
         {
             stop = false;
@@ -110,7 +113,7 @@ NetworkScanner::NetworkScanner() {
 
     result = GetComputerNameA(computerName, &computerNameLen);
     if (result == 0) {
-        std::cout << "[WARNING]Computer name cannot retrieved!\n";
+        // std::cout << "[WARNING]Computer name cannot retrieved!\n";
         hostDevice->setFriendlyName("");
     } else {
         hostDevice->setFriendlyName(computerName);
@@ -144,7 +147,7 @@ NetworkScanner::NetworkScanner() {
         }
         devices.push_back(std::move(hostDevice));
     } else {
-        std::cout << "Call to GetAdaptersAddresses failed with error: " << result << "\n";
+        // std::cout << "Call to GetAdaptersAddresses failed with error: " << result << "\n";
         if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
                     FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
                     NULL, result, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   
@@ -161,26 +164,21 @@ NetworkScanner::NetworkScanner() {
 
 
 void NetworkScanner::processIpV4(unsigned long ipV4Address, unsigned char* macAddress, unsigned long macAddressLen) {
+    std::lock_guard<std::mutex> lock(mtx);
     if (!send_ping(ipV4Address)) {
         if (!send_arp_request(ipV4Address, macAddress, &macAddressLen)) {
-            for (size_t i = 0; i < 6; i++)
+            auto networkDevicePtr = std::make_unique<NetworkDevice>(ipV4Address, macAddress, macAddressLen);
+            devices.push_back(std::move(networkDevicePtr));
+            for (auto it : port_services)
             {
-                std::cout << std::uppercase << std::hex << std::setw(2) << static_cast<int>(macAddress[i]);
-                if (i != 5)
-                    std::cout << ":";
-            }
+                if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, ipV4Address, it.first)) {
+                    devices.back()->addPort(it.first);
+                    // std::cout << it.second << "\t\t[Port:" << it.first << "] is used\n";
+                }
+            }   
         } else {
-            std::cout << "[ERROR]MAC Address cannot be resolved!\n";
+            // std::cout << "[ERROR]MAC Address cannot be resolved!\n";
             return; 
-        }
-        for (auto it : port_services)
-        {
-            if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, ipV4Address, it.first)) {
-                std::cout << it.second << "[Port:" << it.first << "] is used\n";
-                break; 
-
-            }
-            
         } /*else {
             std::cout << "[ERROR]Ping request isnt replied.\n";
         }*/
@@ -206,15 +204,17 @@ void NetworkScanner::scan() {
     // inet_ntop(AF_INET, &start_addr, startIpStr, INET_ADDRSTRLEN);
     initializePortServices();
     
-    MyThreadPool myThreadPool(2);
-    for (uint32_t i = startIp; i < startIp + 5; i++)
+    MyThreadPool myThreadPool;
+    for (uint32_t i = startIp; i < startIp + 255; i++)
     {
-        myThreadPool.enqueue([this, i] {
-            std::cout << "ThreadId: " << std::this_thread::get_id() << " is working.\n";
+        uint32_t ipNet = htonl(i);
+        myThreadPool.enqueue([this, ipNet] {
+            // std::cout << "ThreadId: " << std::this_thread::get_id() << " is working.\n";
             unsigned char macAddress[6] = {0};
             unsigned long macAddressLen = 6;
-            processIpV4(i, macAddress, macAddressLen);
-            std::cout << "ThreadId: " << std::this_thread::get_id() << " finished its job.\n";
+            processIpV4(ipNet, macAddress, macAddressLen);
+            // std::cout << "ThreadId: " << std::this_thread::get_id() << " finished its job.\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
         });
     }
     
@@ -230,3 +230,5 @@ Device& NetworkScanner::getDevice(size_t index) const {
 int NetworkScanner::getDeviceCount() const {
     return devices.size();
 }
+
+//git log --oneline --graph
