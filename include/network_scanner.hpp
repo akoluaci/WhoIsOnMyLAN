@@ -7,7 +7,10 @@
 #include <memory>
 #include "device.hpp"
 #include <functional>
+<<<<<<< HEAD
 #include <atomic>
+=======
+>>>>>>> f80e74b (Backend can connec information to UI)
 
 class NetworkScanner
 {
@@ -27,8 +30,11 @@ public:
     int getDeviceCount() const;
     const std::vector<std::unique_ptr<Device>>& getDevices() const;
     std::vector<const Device*> getDevicePointers() const;
+<<<<<<< HEAD
     void setStopRequest(std::atomic<bool> _stopRequest);
     std::atomic<bool> getStopRequest() const;
+=======
+>>>>>>> f80e74b (Backend can connec information to UI)
 };
 
 

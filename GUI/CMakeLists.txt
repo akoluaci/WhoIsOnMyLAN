@@ -22,6 +22,7 @@
 #         BackendCore
 # )
 
+<<<<<<< HEAD
 qt_wrap_ui(NETLS_UI_HEADERS mainwindow.ui)
 
 qt_wrap_cpp(NETLS_MOC_SRCS 
@@ -47,6 +48,40 @@ target_include_directories(ui
 # 5. Linkleme (aynı kalır)
 target_link_libraries(ui
     PRIVATE
+=======
+# GUI/CMakeLists.txt (Manuel Yapılandırma)
+
+# 1. UI dosyasını işleyen (uic) komutunu tanımla.
+# uic çıktısını her zaman derleme dizinindeki bir alt klasörde oluşturur.
+# Bu dosya (ui_mainwindow.h) artık bir kaynak (source) dosyası gibi işlenecek.
+qt_wrap_ui(LOGINFORM_UI_HEADERS mainwindow.ui)
+
+# 2. Q_OBJECT macro'larını işleyen (moc) komutunu tanımla.
+# Hem mainwindow.h hem de backend_handler.hpp Q_OBJECT içeriyor.
+qt_wrap_cpp(LOGINFORM_MOC_SRCS 
+    mainwindow.h
+    backend_handler.hpp
+)
+
+# 3. Kütüphaneyi oluştur.
+add_library(LoginForm STATIC
+    mainwindow.cpp
+    backend_handler.cpp
+    ${LOGINFORM_UI_HEADERS}
+    ${LOGINFORM_MOC_SRCS}
+)
+
+# 4. KRİTİK INCLUDE AYARI: ui_mainwindow.h'nin bulunduğu dizini ekle.
+# qt_wrap_ui çıktıyı doğrudan ${CMAKE_CURRENT_BINARY_DIR}'da oluşturur.
+target_include_directories(LoginForm
+    PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+# 5. Linkleme (aynı kalır)
+target_link_libraries(LoginForm
+    PRIVATE
+>>>>>>> f80e74b (Backend can connec information to UI)
         BackendCore 
         Qt6::Widgets
         Qt6::Core    

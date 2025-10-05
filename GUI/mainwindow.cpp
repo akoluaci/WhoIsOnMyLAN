@@ -20,11 +20,13 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    
     ui->setupUi(this);
     ui->hostInterfacesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->hostInterfacesTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
     ui->networkDevsTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->networkDevsTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
+
 
     QThread *timerThread = new QThread(this);
     timerWorker = new TimerWorker();
@@ -38,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     backendHandler = new BackendHandler();
     backendHandler->moveToThread(backendThread);
     connect(backendThread, &QThread::finished, backendHandler, &QObject::deleteLater);
+
     connect(backendHandler, &BackendHandler::dataReady,
             this, &MainWindow::handleDataReady);
     connect(ui->pushButton, &QPushButton::clicked,
@@ -99,9 +102,6 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::handleDataReady(const std::vector<const Device*>& data) {
     qDebug() << "Sinyal MainWindow'a ulasti. Slot calisiyor...";
-    // std::vector<HostDevice> incomingData = data.value<std::vector<HostDevice>>();
-
-    // Tabloyu doldurma fonksiyonunu çağır.
     fillTable(data);
 }
 
@@ -175,4 +175,3 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
         isUIClosed = false;
     }
-}

@@ -15,6 +15,7 @@ void Device::setIpv4Address(unsigned long _ipv4Address) {
     char ipV4Char[INET_ADDRSTRLEN] = {0};
     inet_ntop(AF_INET, &_ipv4Address, ipV4Char, INET_ADDRSTRLEN);
     ipv4Address = ipV4Char;
+    
 }
 
 void Device::setMacAddress(unsigned char* _macAddress, unsigned long macAddressLength) {

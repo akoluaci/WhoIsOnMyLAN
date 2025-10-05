@@ -98,7 +98,11 @@ void initializePortServices() {
 
 
 void NetworkScanner::getHostDevice(/*std::function<void(const std::string& ip, const std::string& mac)> onDeviceFoundCallback*/) {
+<<<<<<< HEAD
     // std::cout << "get host device is called\n";
+=======
+    std::cout << "get host device is called\n";
+>>>>>>> f80e74b (Backend can connec information to UI)
     unsigned long flags              = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER; 
     unsigned long bufferSize         = 15000;
     unsigned long computerNameLen    = MAX_SIZE;
@@ -163,6 +167,7 @@ void NetworkScanner::getHostDevice(/*std::function<void(const std::string& ip, c
                         exit(1);
                     }
     }
+<<<<<<< HEAD
     // if (pAddresses)
     //     free(pAddresses);
     // onDeviceFoundCallback(devices.at(0)->getIpv4Address(), devices.at(0)->getMacAddress());
@@ -214,6 +219,9 @@ void NetworkScanner::processIpV4(unsigned long ipV4Address, unsigned char* macAd
             std::cout << "[ERROR]Ping request isnt replied.\n";
         }*/
     }
+=======
+    // onDeviceFoundCallback(devices.at(0)->getIpv4Address(), devices.at(0)->getMacAddress());
+>>>>>>> f80e74b (Backend can connec information to UI)
 }
 
 void NetworkScanner::scan() {
@@ -234,6 +242,7 @@ void NetworkScanner::scan() {
     // char startIpStr[INET_ADDRSTRLEN];
     // inet_ntop(AF_INET, &start_addr, startIpStr, INET_ADDRSTRLEN);
     initializePortServices();
+<<<<<<< HEAD
     
     MyThreadPool myThreadPool;
     for (uint32_t i = startIp; i < startIp + 255; i++)
@@ -247,6 +256,37 @@ void NetworkScanner::scan() {
             // std::cout << "ThreadId: " << std::this_thread::get_id() << " finished its job.\n";
             std::this_thread::sleep_for(std::chrono::milliseconds(300));
         });
+=======
+    unsigned char macAddress[6] = {0};
+    unsigned long macAddressLen = 6;
+    for (uint32_t i = startIp; i < startIp + 25; i++)
+    {
+        if (i == ipv4Address)
+            continue;
+        uint32_t startIpNet = htonl(i);
+        if (!send_ping(startIpNet)) {
+            if (!send_arp_request(startIpNet, macAddress, &macAddressLen)) {
+                auto networkDevicePtr = std::make_unique<NetworkDevice>(startIpNet, macAddress, macAddressLen);
+                devices.push_back(std::move(networkDevicePtr));
+                // for (auto it : port_services)
+                // {
+                //     int port = it.first;
+                //     if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, startIpNet, port)) {
+                //         // networkDevicePtr->addPort(port);    
+                //         devices.back()->addPort(port);
+                //         std::cout << devices.back()->getIpv4Address() << "\n";
+                //         // break; 
+                //     }
+                // }
+            } else {
+                std::cout << "[ERROR]MAC Address cannot be resolved!\n";
+                return; 
+            }
+            
+        } /*else {
+            std::cout << "[ERROR]Ping request isnt replied.\n";
+        }*/
+>>>>>>> f80e74b (Backend can connec information to UI)
     }
 }
 
@@ -271,6 +311,7 @@ std::vector<const Device*> NetworkScanner::getDevicePointers() const {
         devicePtrVector.push_back(ptr.get());
     }
     return devicePtrVector;
+<<<<<<< HEAD
 }
 
 
@@ -281,3 +322,6 @@ std::atomic<bool> NetworkScanner::getStopRequest() const {
 void NetworkScanner::setStopRequest(std::atomic<bool> _stopRequest) {
     stopRequest.store(_stopRequest);
 }
+=======
+}
+>>>>>>> f80e74b (Backend can connec information to UI)
