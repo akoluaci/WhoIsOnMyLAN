@@ -61,12 +61,14 @@ qt_wrap_ui(LOGINFORM_UI_HEADERS mainwindow.ui)
 qt_wrap_cpp(LOGINFORM_MOC_SRCS 
     mainwindow.h
     backend_handler.hpp
+    TimerWorker.h
 )
 
 # 3. Kütüphaneyi oluştur.
 add_library(LoginForm STATIC
     mainwindow.cpp
     backend_handler.cpp
+    TimerWorker.cpp
     ${LOGINFORM_UI_HEADERS}
     ${LOGINFORM_MOC_SRCS}
 )

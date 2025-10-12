@@ -99,10 +99,14 @@ void initializePortServices() {
 
 void NetworkScanner::getHostDevice(/*std::function<void(const std::string& ip, const std::string& mac)> onDeviceFoundCallback*/) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     // std::cout << "get host device is called\n";
 =======
     std::cout << "get host device is called\n";
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+    // std::cout << "get host device is called\n";
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
     unsigned long flags              = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER; 
     unsigned long bufferSize         = 15000;
     unsigned long computerNameLen    = MAX_SIZE;
@@ -126,7 +130,11 @@ void NetworkScanner::getHostDevice(/*std::function<void(const std::string& ip, c
     }
 
     result = GetAdaptersAddresses(AF_INET, flags, 0, pAddresses, &bufferSize);
+<<<<<<< HEAD
     // std::cout << "result: " << (result == NO_ERROR) << "\n";
+=======
+    std::cout << "result: " << (result == NO_ERROR) << "\n";
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
     if (NO_ERROR == result) {
         while (pAddresses->OperStatus != IfOperStatusUp || pAddresses->IfType == IF_TYPE_SOFTWARE_LOOPBACK) {
             pAddresses = pAddresses -> Next;
@@ -168,6 +176,9 @@ void NetworkScanner::getHostDevice(/*std::function<void(const std::string& ip, c
                     }
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
     // if (pAddresses)
     //     free(pAddresses);
     // onDeviceFoundCallback(devices.at(0)->getIpv4Address(), devices.at(0)->getMacAddress());
@@ -259,25 +270,40 @@ void NetworkScanner::scan() {
 =======
     unsigned char macAddress[6] = {0};
     unsigned long macAddressLen = 6;
-    for (uint32_t i = startIp; i < startIp + 25; i++)
+    for (uint32_t i = startIp; i < broadcast; i++)
     {
+        if (stopRequest) {
+            // std::cout << "stop request @1\n";
+            devices.clear();
+            return;
+        }
         if (i == ipv4Address)
             continue;
         uint32_t startIpNet = htonl(i);
         if (!send_ping(startIpNet)) {
+            if (stopRequest) {
+                // std::cout << "stop request @2\n";
+                devices.clear();
+                return;
+            }
             if (!send_arp_request(startIpNet, macAddress, &macAddressLen)) {
+                if (stopRequest) {
+                    // std::cout << "stop request @3\n";
+                    devices.clear();
+                    return;
+                }
                 auto networkDevicePtr = std::make_unique<NetworkDevice>(startIpNet, macAddress, macAddressLen);
                 devices.push_back(std::move(networkDevicePtr));
-                // for (auto it : port_services)
-                // {
-                //     int port = it.first;
-                //     if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, startIpNet, port)) {
-                //         // networkDevicePtr->addPort(port);    
-                //         devices.back()->addPort(port);
-                //         std::cout << devices.back()->getIpv4Address() << "\n";
-                //         // break; 
-                //     }
-                // }
+                for (auto it : port_services)
+                {
+                    int port = it.first;
+                    if (!connection(AF_INET, SOCK_STREAM, IPPROTO_TCP, startIpNet, port)) {
+                        // networkDevicePtr->addPort(port);    
+                        devices.back()->addPort(port);
+                        // std::cout << devices.back()->getIpv4Address() << "\n";
+                        // break; 
+                    }
+                }
             } else {
                 std::cout << "[ERROR]MAC Address cannot be resolved!\n";
                 return; 
@@ -312,6 +338,9 @@ std::vector<const Device*> NetworkScanner::getDevicePointers() const {
     }
     return devicePtrVector;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 }
 
 
@@ -321,7 +350,11 @@ std::atomic<bool> NetworkScanner::getStopRequest() const {
 
 void NetworkScanner::setStopRequest(std::atomic<bool> _stopRequest) {
     stopRequest.store(_stopRequest);
+<<<<<<< HEAD
 }
 =======
 }
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+}
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)

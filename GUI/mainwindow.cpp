@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    
     ui->setupUi(this);
     ui->hostInterfacesTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->hostInterfacesTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
@@ -43,6 +42,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(backendHandler, &BackendHandler::dataReady,
             this, &MainWindow::handleDataReady);
+    // connect(backendHandler, &BackendHandler::dataReady, timerWorker, &TimerWorker::stopTimer);
+    // TODO
+    // FIND A WAY TO NOT TRIGGER THE SIGNALS BELOW BY THE SAME SENDER
     connect(ui->pushButton, &QPushButton::clicked,
             backendHandler, &BackendHandler::triggerDataGeneration);
     connect(backendThread, &QThread::finished, this, &MainWindow::onBackendThreadFinished);

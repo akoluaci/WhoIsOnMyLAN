@@ -1,6 +1,7 @@
 #include "backend_handler.hpp"
 #include <iostream>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <QTimer>
 #include <QThread>
 // #include <QVariant>
@@ -14,11 +15,21 @@ BackendHandler::BackendHandler(QObject* parent)
 BackendHandler::BackendHandler(QObject* parent)
     : QObject(parent)
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+#include <QTimer>
+#include <QThread>
+// #include <QVariant>
+
+BackendHandler::BackendHandler(QObject* parent)
+    : QObject(parent),
+      second(0)
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 {
     
 }
 
 void BackendHandler::triggerDataGeneration() {
+<<<<<<< HEAD
 <<<<<<< HEAD
     // qDebug() << "BackendHandler: Rastgele veri uretimi tetiklendi.";
     networkScanner.getHostDevice();
@@ -48,14 +59,45 @@ void BackendHandler::setStopRequest(std::atomic<bool> _value) {
 // void BackendHandler::hostInfoReady(const std::vector<const Device *>& data) {
 =======
     qDebug() << "BackendHandler: Rastgele veri uretimi tetiklendi.";
+=======
+    // qDebug() << "BackendHandler: Rastgele veri uretimi tetiklendi.";
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
     networkScanner.getHostDevice();
+    // emit hostInfoReady(devices);
     networkScanner.scan();
-    auto devices = networkScanner.getDevicePointers();
     // QVariant dataVariant = QVariant::fromValue(devices);
+    auto devices = networkScanner.getDevicePointers();
     emit dataReady(devices);
 }
+<<<<<<< HEAD
 // void BackendHandler::hostInfoReady() {
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+
+void BackendHandler::setStopRequest(std::atomic<bool> _value) {
+    std::cout << "stopReq before: " << networkScanner.getStopRequest() << "\n";
+    // if (networkScanner.getStopRequest() == true)
+    //     networkScanner.setStopRequest(false);
+    // else
+    //     networkScanner.setStopRequest(true);
+    networkScanner.setStopRequest(_value.load());
+    std::cout << "stopReq after: " << networkScanner.getStopRequest() << "\n";
+}
+
+// void BackendHandler::setElapsedTimer() {
+//     QTimer *timer = new QTimer(this);
+//     connect(timer, &QTimer::timeout, this, &BackendHandler::incrementTimer);
+//     std::cout << "timer is set\n";
+//     timer->start(1000);
+// }
+
+// void BackendHandler::incrementTimer() {
+//     ++second;
+//     emit timeUpdated(second);
+// }
+
+// void BackendHandler::hostInfoReady(const std::vector<const Device *>& data) {
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 //     std::cout << "Host info ready now!\n";
 // }
 

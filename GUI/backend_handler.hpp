@@ -16,10 +16,15 @@ private:
     /* data */
     NetworkScanner networkScanner;
 <<<<<<< HEAD
+<<<<<<< HEAD
     int second;
     // std::atomic<bool> stopRequest;
 =======
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+    int second;
+    // std::atomic<bool> stopRequest;
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 public:
     BackendHandler(QObject *parent = nullptr);
     ~BackendHandler() = default;
@@ -36,11 +41,19 @@ signals:
     // void timeUpdated(int second);
 =======
     void triggerDataGeneration(); // Butondan çağrılacak yeni metot
-
+    void setStopRequest(std::atomic<bool> _value);
+// public slots:
+//     void setElapsedTimer();
+// private slots:
+//     void  incrementTimer();
 signals:
     void dataReady(const std::vector<const Device*>& data);
+<<<<<<< HEAD
     
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+    // void timeUpdated(int second);
+>>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 };
 
 
