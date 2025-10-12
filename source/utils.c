@@ -40,8 +40,8 @@ int connection(int address_family, int type, int protocol, unsigned long ipv4_ad
     new_socket = socket(address_family, type, protocol);
 
     if (INVALID_SOCKET == new_socket) {
-        puts("[ERROR in connection]Socket creation failed!");
-        printf("Error code: %d\n", WSAGetLastError());
+        // puts("[ERROR in connection]Socket creation failed!");
+        // printf("Error code: %d\n", WSAGetLastError());
         WSACleanup();
         return -1;
     }
@@ -56,8 +56,8 @@ int connection(int address_family, int type, int protocol, unsigned long ipv4_ad
         // printf("Error Code: %d\n", WSAGetLastError());
         result = closesocket(new_socket);
         if (result == SOCKET_ERROR) {
-            puts("[ERROR]Error during closing socket");
-            printf("Error Code: %d\n", WSAGetLastError());
+            // puts("[ERROR]Error during closing socket");
+            // printf("Error Code: %d\n", WSAGetLastError());
         }
         WSACleanup();
         return -1;

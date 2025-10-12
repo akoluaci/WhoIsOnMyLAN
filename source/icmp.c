@@ -56,8 +56,8 @@ int send_ping(unsigned long target_ip_address)
     local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     socket = create_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (SOCKET_ERROR == socket) {
-        puts("Socket creation failed!");
-        printf("Error Code:%d\n", WSAGetLastError());
+        // puts("Socket creation failed!");
+        // printf("Error Code:%d\n", WSAGetLastError());
         WSACleanup();
         return -1;
     }
@@ -73,16 +73,16 @@ int send_ping(unsigned long target_ip_address)
     icmp.checksum = calculate_checksum((void*)&icmp, sizeof(icmp));
     result = sendto(socket, (char*)&icmp, sizeof(icmp), 0, (SOCKADDR *) &recv_addr, sizeof(recv_addr));
     if (SOCKET_ERROR == result) {
-        puts("Error while sending icmp request!");
-        printf("Error code:%d\n", WSAGetLastError());
+        // puts("Error while sending icmp request!");
+        // printf("Error code:%d\n", WSAGetLastError());
         WSACleanup();
         return -1;
     }
     // puts("Data is sent");
     result = recvfrom(socket, received_buffer, buffer_len, 0, (SOCKADDR *)&sender_addr, &sender_address_size);
     if (SOCKET_ERROR == result) {
-        puts("Error while receiving!");
-        printf("Error code:%d\n", WSAGetLastError());
+        // puts("Error while receiving!");
+        // printf("Error code:%d\n", WSAGetLastError());
         WSACleanup();
         return -1;
     }
