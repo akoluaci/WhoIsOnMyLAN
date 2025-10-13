@@ -41,6 +41,7 @@ void BackendHandler::triggerDataGeneration() {
 }
 
 void BackendHandler::setStopRequest(std::atomic<bool> _value) {
+<<<<<<< HEAD
     networkScanner.setStopRequest(_value.load());
 }
 
@@ -80,8 +81,9 @@ void BackendHandler::setStopRequest(std::atomic<bool> _value) {
     //     networkScanner.setStopRequest(false);
     // else
     //     networkScanner.setStopRequest(true);
+=======
+>>>>>>> c02e6f3 (project name changed, make compatible to build with and without ui program)
     networkScanner.setStopRequest(_value.load());
-    std::cout << "stopReq after: " << networkScanner.getStopRequest() << "\n";
 }
 
 // void BackendHandler::setElapsedTimer() {
@@ -105,6 +107,7 @@ void BackendHandler::setStopRequest(std::atomic<bool> _value) {
 //     std::cout << "Network devices are found now!\n";
 // }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /*
@@ -121,3 +124,5 @@ I am now trying to add my backendhandler class under GUI folder.
 Please me guide me considering this information.
 */
 >>>>>>> f80e74b (Backend can connec information to UI)
+=======
+>>>>>>> c02e6f3 (project name changed, make compatible to build with and without ui program)

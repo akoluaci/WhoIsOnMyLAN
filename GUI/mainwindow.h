@@ -3,16 +3,9 @@
 
 #include <QMainWindow>
 #include "backend_handler.hpp"
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 #include "TimerWorker.h"
 #include <QThread>
-=======
->>>>>>> f80e74b (Backend can connec information to UI)
-=======
-#include "TimerWorker.h"
-#include <QThread>
->>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

@@ -26,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->networkDevsTable->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui->networkDevsTable->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
 
-
     QThread *timerThread = new QThread(this);
     timerWorker = new TimerWorker();
     timerWorker->moveToThread(timerThread);
@@ -42,9 +41,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(backendHandler, &BackendHandler::dataReady,
             this, &MainWindow::handleDataReady);
-    // connect(backendHandler, &BackendHandler::dataReady, timerWorker, &TimerWorker::stopTimer);
-    // TODO
-    // FIND A WAY TO NOT TRIGGER THE SIGNALS BELOW BY THE SAME SENDER
     connect(ui->pushButton, &QPushButton::clicked,
             backendHandler, &BackendHandler::triggerDataGeneration);
     connect(backendThread, &QThread::finished, this, &MainWindow::onBackendThreadFinished);

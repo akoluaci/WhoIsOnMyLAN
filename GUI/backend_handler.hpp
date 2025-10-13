@@ -30,6 +30,9 @@ public:
     ~BackendHandler() = default;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c02e6f3 (project name changed, make compatible to build with and without ui program)
     void triggerDataGeneration(); 
     void setStopRequest(std::atomic<bool> _value);
 // public slots:
