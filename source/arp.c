@@ -6,8 +6,6 @@
 #pragma comment(lib, "iphlpapi.lib")
 #pragma comment(lib, "ws2_32.lib")
 
-// TODO
-// Add source ip address
 int send_arp_request(unsigned long target_ip_address, unsigned char* mac_address, unsigned long* mac_address_len)
 {
     struct sockaddr_in ipAddr = {.sin_addr.S_un.S_addr = target_ip_address};

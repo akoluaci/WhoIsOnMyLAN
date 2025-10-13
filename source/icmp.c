@@ -41,8 +41,6 @@ int send_ping(unsigned long target_ip_address)
 
     // printf("target_ip_address:%s\n", target_ip_address);
     recv_addr.sin_family = AF_INET;
-    // TODO
-    // Port must be a parameter value, not static.
     recv_addr.sin_port = htons(0);
     recv_addr.sin_addr.S_un.S_addr = target_ip_address;
     // result = inet_pton(AF_INET, target_ip_address, (void*)&recv_addr.sin_addr);

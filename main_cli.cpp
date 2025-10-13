@@ -2,7 +2,7 @@
 #include "network_scanner.hpp"
 #include "host_device.hpp"
 #include "network_device.hpp"
-#define SIZE 15000
+
 
 int main(int argc, char const *argv[])
 {

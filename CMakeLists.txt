@@ -14,8 +14,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 # Çalıştırılabilir programı (netscan) ve onu oluşturacak kaynak dosyalarını listeler
 # Bu en standart ve hatasız yöntemdir
-add_executable(netscan
-    main.cpp
+add_executable(netls
+    main_cli.cpp
     source/network_scanner.cpp
     source/device.cpp
     source/host_device.cpp
@@ -29,5 +29,5 @@ add_executable(netscan
 # Bu blok, programın Windows üzerinde derlenirken ağ fonksiyonları için
 # gerekli olan kütüphaneleri bulmasını sağlar.
 if (WIN32)
-    target_link_libraries(netscan PRIVATE ws2_32 iphlpapi)
+    target_link_libraries(netls PRIVATE ws2_32 iphlpapi)
 endif()
