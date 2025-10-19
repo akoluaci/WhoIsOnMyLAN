@@ -14,8 +14,10 @@ after successfull execution, execute:
 
 > cmake --build build
 
-after that,
+Congratulations, you now can execute the program.
 
-> .\build\bin\netls.exe
+The code below executes the cli version:
+> .\build\bin\netls_cli.exe
 
-The UI version of the program will be here soon.
+The code below executes the ui version:
+> .\build\bin\netls_ui.exe
