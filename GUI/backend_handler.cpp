@@ -1,7 +1,5 @@
 #include "backend_handler.hpp"
 #include <iostream>
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include <QTimer>
 #include <QThread>
 // #include <QVariant>
@@ -9,28 +7,11 @@
 BackendHandler::BackendHandler(QObject* parent)
     : QObject(parent),
       second(0)
-=======
-// #include <QVariant>
-
-BackendHandler::BackendHandler(QObject* parent)
-    : QObject(parent)
->>>>>>> f80e74b (Backend can connec information to UI)
-=======
-#include <QTimer>
-#include <QThread>
-// #include <QVariant>
-
-BackendHandler::BackendHandler(QObject* parent)
-    : QObject(parent),
-      second(0)
->>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 {
     
 }
 
 void BackendHandler::triggerDataGeneration() {
-<<<<<<< HEAD
-<<<<<<< HEAD
     // qDebug() << "BackendHandler: Rastgele veri uretimi tetiklendi.";
     networkScanner.getHostDevice();
     // emit hostInfoReady(devices);
@@ -41,7 +22,6 @@ void BackendHandler::triggerDataGeneration() {
 }
 
 void BackendHandler::setStopRequest(std::atomic<bool> _value) {
-<<<<<<< HEAD
     networkScanner.setStopRequest(_value.load());
 }
 
@@ -58,71 +38,9 @@ void BackendHandler::setStopRequest(std::atomic<bool> _value) {
 // }
 
 // void BackendHandler::hostInfoReady(const std::vector<const Device *>& data) {
-=======
-    qDebug() << "BackendHandler: Rastgele veri uretimi tetiklendi.";
-=======
-    // qDebug() << "BackendHandler: Rastgele veri uretimi tetiklendi.";
->>>>>>> c3eb0db (backend and timer start/stop issue fixed)
-    networkScanner.getHostDevice();
-    // emit hostInfoReady(devices);
-    networkScanner.scan();
-    // QVariant dataVariant = QVariant::fromValue(devices);
-    auto devices = networkScanner.getDevicePointers();
-    emit dataReady(devices);
-}
-<<<<<<< HEAD
-// void BackendHandler::hostInfoReady() {
->>>>>>> f80e74b (Backend can connec information to UI)
-=======
-
-void BackendHandler::setStopRequest(std::atomic<bool> _value) {
-    std::cout << "stopReq before: " << networkScanner.getStopRequest() << "\n";
-    // if (networkScanner.getStopRequest() == true)
-    //     networkScanner.setStopRequest(false);
-    // else
-    //     networkScanner.setStopRequest(true);
-=======
->>>>>>> c02e6f3 (project name changed, make compatible to build with and without ui program)
-    networkScanner.setStopRequest(_value.load());
-}
-
-// void BackendHandler::setElapsedTimer() {
-//     QTimer *timer = new QTimer(this);
-//     connect(timer, &QTimer::timeout, this, &BackendHandler::incrementTimer);
-//     std::cout << "timer is set\n";
-//     timer->start(1000);
-// }
-
-// void BackendHandler::incrementTimer() {
-//     ++second;
-//     emit timeUpdated(second);
-// }
-
-// void BackendHandler::hostInfoReady(const std::vector<const Device *>& data) {
->>>>>>> c3eb0db (backend and timer start/stop issue fixed)
 //     std::cout << "Host info ready now!\n";
 // }
 
 // void BackendHandler::fullListReady() {
 //     std::cout << "Network devices are found now!\n";
 // }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-/*
-I dont think you understand me again.
-
-My backend files are in include and source folder. There is nothing about Qt inside them.
-
-I wanna do everyting about GUI under my GUI folder. So please think this like there is even no inclusion of Qt libraries in the files under include and source folders.
-
-I cannot understand TodoItem structure since I have already a class to hold my Todos. I can handle it with that class, I think.
-
-I am now trying to add my backendhandler class under GUI folder.
-
-Please me guide me considering this information.
-*/
->>>>>>> f80e74b (Backend can connec information to UI)
-=======
->>>>>>> c02e6f3 (project name changed, make compatible to build with and without ui program)

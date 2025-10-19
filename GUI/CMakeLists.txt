@@ -22,8 +22,6 @@
 #         BackendCore
 # )
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 qt_wrap_ui(NETLS_UI_HEADERS mainwindow.ui)
 
 qt_wrap_cpp(NETLS_MOC_SRCS 
@@ -49,36 +47,6 @@ target_include_directories(ui
 # 5. Linkleme (aynı kalır)
 target_link_libraries(ui
     PRIVATE
-=======
-# GUI/CMakeLists.txt (Manuel Yapılandırma)
-=======
-qt_wrap_ui(NETLS_UI_HEADERS mainwindow.ui)
->>>>>>> c02e6f3 (project name changed, make compatible to build with and without ui program)
-
-qt_wrap_cpp(NETLS_MOC_SRCS 
-    mainwindow.h
-    backend_handler.hpp
-    TimerWorker.h
-)
-
-
-add_library(ui STATIC
-    mainwindow.cpp
-    backend_handler.cpp
-    TimerWorker.cpp
-    ${NETLS_UI_HEADERS}
-    ${NETLS_MOC_SRCS}
-)
-
-target_include_directories(ui
-    PRIVATE
-        ${CMAKE_CURRENT_BINARY_DIR}
-)
-
-# 5. Linkleme (aynı kalır)
-target_link_libraries(ui
-    PRIVATE
->>>>>>> f80e74b (Backend can connec information to UI)
         BackendCore 
         Qt6::Widgets
         Qt6::Core    

@@ -173,3 +173,4 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->accept();
         isUIClosed = false;
     }
+}

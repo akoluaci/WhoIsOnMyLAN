@@ -31,11 +31,7 @@ endif()
 add_subdirectory(source)
 add_subdirectory(GUI)
 
-<<<<<<< HEAD
 add_executable(netls_ui main_ui.cpp)
-=======
-add_executable(netls main_ui.cpp)
->>>>>>> f1f8ef7 (main file name changed)
 
 
 target_include_directories(netls_ui
